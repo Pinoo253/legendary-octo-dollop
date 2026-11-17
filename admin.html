@@ -1,0 +1,17 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin — ADB CREATIVE TEAM</title><link rel="stylesheet" href="style.css"></head><body>
+<main class="wrap"><div id="login" class="card"><h2>Login Admin</h2><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password"><button class="btn" onclick="login()">Masuk</button><p id="msg" class="err"></p></div>
+<div id="dash" hidden><div style="display:flex;justify-content:space-between;align-items:center"><h2>Dashboard Admin</h2><button class="btn" onclick="logout()">Logout</button></div><p id="sum"></p><div id="list"></div></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script><script src="app.js"></script>
+<script>
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function login(){const {error}=await db.auth.signInWithPassword({email:em.value,password:pw.value});if(error){msg.textContent="Email atau password salah.";return}load()}
+async function logout(){await db.auth.signOut();location.reload()}
+async function load(){const {data:{user}}=await db.auth.getUser();if(!user)return;
+const {data:ok}=await db.rpc("is_admin");if(!ok){msg.textContent="Akun ini bukan admin.";return}
+login.hidden=true;dash.hidden=false;const {data}=await db.from("feedback").select("*").order("created_at",{ascending:false});
+sum.textContent=`Feedback: ${data.length} · Belum dibaca: ${data.filter(x=>!x.is_read).length}`;
+list.innerHTML=data.map(f=>`<div class="card"><small>${esc(f.category)} · ${esc(f.name||"Anonim")} · ${new Date(f.created_at).toLocaleString("id-ID")} ${f.is_read?"":"· BARU"}</small><p>${esc(f.message)}</p>${f.is_read?"":`<button class="btn" onclick="rd('${f.id}')">Tandai dibaca</button> `}<button class="btn red" onclick="rm('${f.id}')">Hapus</button></div>`).join("")||'<div class="card">Belum ada feedback.</div>'}
+async function rd(id){await db.from("feedback").update({is_read:true}).eq("id",id);load()}
+async function rm(id){if(confirm("Hapus feedback ini?")){await db.from("feedback").delete().eq("id",id);load()}}
+load();
+</script></body></html>

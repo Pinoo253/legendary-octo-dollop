@@ -1,0 +1,31 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ADB CREATIVE TEAM</title><meta name="description" content="Portofolio ekstrakurikuler ADB CREATIVE TEAM: kegiatan, karya, dan prestasi."><link rel="stylesheet" href="style.css"></head><body>
+<section class="hero"><div>
+<small>Ekstrakurikuler kreatif</small>
+<h1>ADB<br>CREATIVE TEAM</h1>
+<p>Tempat ide tumbuh menjadi karya. Lihat kegiatan, proyek, dan prestasi anggota kami.</p>
+<div class="row"><a class="btn" href="#karya">Jelajahi Kegiatan ↗</a><a class="btn ghost" href="feedback.html">Kirim Saran &amp; Kritik</a></div>
+</div></section>
+
+<section class="sec" id="karya"><h2>Kegiatan Terbaru</h2><div class="cards" id="acts"></div></section>
+<section class="sec"><h2>Featured Projects</h2><div class="cards" id="projs"></div></section>
+<section class="sec"><h2>Milestones</h2><div class="stats" id="stats"></div></section>
+
+<section class="cta"><h2>Ikuti perjalanan kreatif kami di Instagram.</h2><a class="btn" id="ig" target="_blank" rel="noopener noreferrer">Kunjungi Instagram Kami ↗</a></section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script><script src="app.js"></script>
+<script>
+document.getElementById("ig").href=IG;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl=u=>/^https:\/\//.test(u||"")?u:"";
+async function cards(table,el){
+  const {data}=await db.from(table).select("title,description,image_url,category").eq("published",true).order("created_at",{ascending:false}).limit(3);
+  document.getElementById(el).innerHTML=(data&&data.length)?data.map(x=>`<article class="card"><div class="thumb" style="${safeUrl(x.image_url)?`background-image:url('${encodeURI(safeUrl(x.image_url))}')`:""}"></div><div class="body">${x.category?`<span class="tag">${esc(x.category)}</span>`:""}<h3>${esc(x.title)}</h3><p class="muted">${esc((x.description||"").slice(0,110))}</p></div></article>`).join(""):'<div class="empty">Belum ada konten yang dipublikasikan.</div>';
+}
+(async()=>{
+  cards("activities","acts");cards("projects","projs");
+  const t=[["activities","Kegiatan"],["projects","Proyek"],["gallery","Foto & Video"],["achievements","Prestasi"]];
+  const el=document.getElementById("stats");
+  for(const [k,l] of t){const {count}=await db.from(k).select("*",{count:"exact",head:true}).eq("published",true);
+    el.insertAdjacentHTML("beforeend",`<div><b>${count??0}</b><span>${l}</span></div>`)}
+})();
+</script></body></html>

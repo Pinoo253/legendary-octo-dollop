@@ -1,0 +1,15 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Saran &amp; Kritik — ADB CREATIVE TEAM</title><link rel="stylesheet" href="style.css"></head><body>
+<main class="wrap"><h1>Saran &amp; Kritik</h1>
+<p>Setiap saran dan kritik sangat berarti bagi perkembangan ADB CREATIVE TEAM. Sampaikan pendapat, ide, dan masukan kamu agar kami bisa terus berkembang menjadi lebih baik.</p>
+<form id="f" class="card"><input name="name" maxlength="80" placeholder="Nama (opsional)">
+<select name="category" required><option>Saran</option><option>Kritik</option><option>Ide kegiatan</option><option>Evaluasi</option><option>Lainnya</option></select>
+<textarea name="message" rows="6" minlength="10" maxlength="2000" required placeholder="Tulis masukanmu…"></textarea>
+<input class="hp" name="website" tabindex="-1" autocomplete="off"><button class="btn">Kirim</button><p id="s" role="status"></p></form></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js"></script><script src="app.js"></script>
+<script>
+f.onsubmit=async e=>{e.preventDefault();const d=new FormData(f),s=document.getElementById("s");
+if(d.get("website")){s.textContent="Terkirim.";return}
+const m=d.get("message").trim();if(m.length<10){s.className="err";s.textContent="Pesan minimal 10 karakter.";return}
+const {error}=await db.from("feedback").insert({name:d.get("name").trim()||null,category:d.get("category"),message:m});
+s.className=error?"err":"ok";s.textContent=error?"Gagal mengirim. Coba lagi.":"Terima kasih sudah menjadi bagian dari perkembangan ADB CREATIVE TEAM.";if(!error)f.reset()};
+</script></body></html>
